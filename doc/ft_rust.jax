@@ -1,0 +1,240 @@
+*ft_rust.txt*      Rust ファイルタイププラグイン
+
+==============================================================================
+目次									*rust*
+
+1. 概要                                                        |rust-intro|
+2. 設定                                                        |rust-settings|
+3. コマンド                                                    |rust-commands|
+4. マッピング                                                  |rust-mappings|
+
+==============================================================================
+概要	                                                      *rust-intro*
+
+このプラグインは、Rust ファイルタイプ向けのシンタックスやサポート機能を提供
+します。
+
+==============================================================================
+設定	                                                       *rust-settings*
+
+変数をvimrc で定義すると、このプラグインの挙動を変更できます。
+
+                                                                *g:rustc_path*
+g:rustc_path~
+	|:RustRun| と |:RustExpand| で使われる rustc のパスを設定します。
+	未設定のときは、$PATH 内に "rustc" があるものとされます: >
+	    let g:rustc_path = $HOME."/bin/rustc"
+<
+
+                                                  *g:rustc_makeprg_no_percent*
+g:rustc_makeprg_no_percent~
+	このオプションを1 にすると 'makeprg' が "rustc %" ではなく "rustc" に
+	設定されます。: >
+	    let g:rustc_makeprg_no_percent = 1
+<
+
+                                                              *g:rust_conceal*
+g:rust_conceal~
+	このオプションをオンにすると、|conceal| 機能の基礎部分が有効になります: >
+	    let g:rust_conceal = 1
+<
+
+                                                     *g:rust_conceal_mod_path*
+g:rust_conceal_mod_path~
+	パス間を繋ぐ字句 "::" の |conceal| を有効にするには、このオプションを設
+	定します: >
+	    let g:rust_conceal_mod_path = 1
+<
+
+                                                          *g:rust_conceal_pub*
+g:rust_conceal_pub~
+	"pub" 字句の |conceal| を有効にするには、このオプションを設定します: >
+	    let g:rust_conceal_pub = 1
+<
+
+                                                     *g:rust_recommended_style*
+g:rust_recommended_style~
+	vim のインデントとtextwidth の設定を rust 標準ライブラリのスタイル規則
+	(インデントにスペース4文字を使い、'textwidth' を99 に設定するなど) に
+	合わすには、このオプションを設定します。このオプションは標準で有効にさ
+	れています。無効にするには: >
+	    let g:rust_recommended_style = 0
+<
+
+                                                                 *g:rust_fold*
+g:rust_fold~
+	折畳み |folding| をオンにするには、このオプションを設定します: >
+	    let g:rust_fold = 1
+<
+	値		効果 ~
+	0		折畳みなし
+	1		括弧で囲まれたブロックが折畳まれます。初期状態では全て
+			の折畳みが開いています。
+	2		括弧で囲まれたブロックが折畳まれます。'foldlevel' はグ
+			ローバルな値のまま変更されません。(既定では全ての折畳
+			みが閉じています) 。
+
+                                                  *g:rust_bang_comment_leader*
+g:rust_bang_comment_leader~
+	このオプションを1 に設定すると、/*! の構文を使った複数行にわたるドキュ
+	メントコメントの1行目の '*' を省きます。 >
+	    let g:rust_bang_comment_leader = 1
+<
+
+                                                 *g:ftplugin_rust_source_path*
+g:ftplugin_rust_source_path~
+	Rust ソースコードが 'path' にあるかのように振る舞うようにするには、そ
+	のオプションを設定します: >
+	    let g:ftplugin_rust_source_path = $HOME.'/dev/rust'
+<
+
+                                                       *g:rustfmt_command*
+g:rustfmt_command~
+	$PATH にある 'rustfmt' の実行ファイルの名前を設定します。既定では
+	'rustfmt' です: >
+	    let g:rustfmt_command = 'rustfmt'
+<
+                                                       *g:rustfmt_autosave*
+g:rustfmt_autosave~
+	このオプションを1に設定すると、バッファを保存するとき自動的に
+	|:RustFmt| が実行されます。指定されていない場合既定では0 です: >
+	    let g:rustfmt_autosave = 0
+<
+                                                       *g:rustfmt_fail_silently*
+g:rustfmt_fail_silently~
+	'rustfmt' のエラーをロケーションリスト |location-list| に追加しないよ
+	うにするには、このオプションを1に設定します。指定されていないとき、既
+	定値は0です: >
+	    let g:rustfmt_fail_silently = 0
+<
+                                                       *g:rustfmt_options*
+g:rustfmt_options~
+	'rustfmt' に渡す文字列を指定します。write-mode は元から 'overwrite' に
+	設定されています。既定値は''です: >
+	    let g:rustfmt_options = ''
+<
+
+                                                          *g:rust_playpen_url*
+g:rust_playpen_url~
+	使用するplaypen のURLを上書きするにはこのオプションを設定します: >
+	    let g:rust_playpen_url = 'https://play.rust-lang.org/'
+<
+
+                                                        *g:rust_shortener_url*
+g:rust_shortener_url~
+	短縮URLサービスのURLを上書きするにはこのオプションを設定します: >
+	    let g:rust_shortener_url = 'https://is.gd/'
+<
+
+
+==============================================================================
+コマンド							*rust-commands*
+
+:RustRun  [args]                                                    *:RustRun*
+:RustRun! [rustc-args] [--] [args]
+		カレントファイルをコンパイルして実行します。未保存の変更がある
+		ときは、まず |:update|  により保存されます。カレントファイルが
+		無名バッファの時は、最初に一時ファイルに保存されます。コンパイ
+		ルされたバイナリは常に一時ディレクトリへ保存されますが、カレン
+		トディレクトリで実行されます。
+
+		|:RustRun| に与えられた引数はコンパイルされたバイナリに渡され
+		ます。
+
+		! が指定されたときは、引数はバイナリではなく rustc に渡されま
+		す。実行ファイルに渡される引数と rustc に渡される引数は "--"
+		引数で区切ります。
+
+		|g:rustc_path| が定義されているときは、それがrustc へのパスと
+		して使われます。定義されてなければ、rustc が $PATH にあるもの
+		と仮定されます。
+
+:RustExpand  [args]                                              *:RustExpand*
+:RustExpand! [TYPE] [args]
+		カレントファイルを --pretty で展開して、その結果を分割して表示
+		します。未保存の変更があるときは、まず |:update|  により保存さ
+		れます。カレントファイルが無名バッファの時は、最初に一時ファイ
+		ルに保存されます。
+
+		|:RustExpand| に与えられた引数は rustc に渡されます。これは主
+		に --cfg での様々な設定を指定することを意図しています。
+
+		! が指定されたときは、最初の引数には rustc --pretty に渡される
+		展開タイプを指定します。! が指定されないときは、"expanded" が
+		使われます。
+
+		|g:rustc_path| が定義されているときは、それがrustc へのパスと
+		して使われます。定義されてなければ、rustc が $PATH にあるもの
+		と仮定されます。
+
+:RustEmitIr [args]                                               *:RustEmitIr*
+		カレントファイルをLLVM IR にコンパイルし、結果を分割して表示し
+		ます。カレントファイルに保存されていない変更があるときは、先に
+		|:update| により保存されます。カレントファイルが無名バッファの
+		ときは、先に一時ファイルに保存されます。
+
+		|:RustEmitIr| に与えられた引数はrustc に渡されます。
+
+		|g:rustc_path| が定義されているときは、それがrustc へのパスと
+		して使われます。定義されてなければ、rustc が $PATH にあるもの
+		と仮定されます。
+
+:RustEmitAsm [args]                                             *:RustEmitAsm*
+		カレントファイルをアセンブリにコンパイルし、結果を分割して表示
+		します。カレントファイルに保存されていない変更があるときは、先
+		に |:update| により保存されます。カレントファイルが無名バッフ
+		ァのときは、先に一時ファイルに保存されます。
+
+		|:RustEmitAsm| に与えられた引数は rustc に渡されます。
+
+		|g:rustc_path| が定義されているときは、それがrustc へのパスと
+		して使われます。定義されてなければ、rustc が $PATH にあるもの
+		と仮定されます。
+
+:RustPlay                                                          *:RustPlay*
+		このコマンドは web-api.vim がインストールされている場合のみ動
+		作します (https://github.com/mattn/webapi-vim で入手できます)
+		。現在選択された部分がもしあれば選択された部分を、何も選択され
+		ていなければカレントバッファ全体をRust playpen に送信します。
+		そして、playpen への短縮URLを構成し、それらを含めメッセージを
+		送信します。
+
+		|g:rust_playpen_url| はplaypen のベースURLであり、既定では
+		"https://play.rust-lang.org/" です。
+
+		|g:rust_shortener_url| は短縮URLサービスのベースURLであり、既
+		定では "https://is.gd" です。
+
+:RustFmt                                                       *:RustFmt*
+		カレントバッファで |g:rustfmt_command| を実行します。
+		|g:rustfmt_options| が設定されているなら、実行ファイルにそれら
+		が渡されます。
+
+		|g:rustfmt_fail_silently| が0 (既定値) なら、
+		|g:rustfmt_command| からのエラーをロケーションリスト
+		|location-list| に追加します。 |g:rustfmt_fail_silently| が1な
+		ら、ロケーションリスト |location-list| に追加しません。
+
+:RustFmtRange                                                  *:RustFmtRange*
+		選択された領域について |g:rustfmt_command| を実行します。他の
+		情報は |:RustFmt| を参照してください。
+
+==============================================================================
+マッピング							*rust-mappings*
+
+このプラグインでは、ぶら下がったインデントに対応するため|[[| と |]]| をマッピ
+ングします。
+
+他にもいくつかマッピングがあります:
+
+							*rust_<D-r>*
+<D-r>			引数なしで |:RustRun| を実行します。
+			Note: 利用できるのはMacVim のみです。
+
+							*rust_<D-R>*
+<D-R>			|:RustRun|! のコマンドラインに、最後に実行されたときの引
+			数を追記します。しかし、実行は行いません。
+			Note: 利用できるのはMacVim のみです。
+
+==============================================================================
+ vim:tw=78:sw=4:noet:ts=8:ft=help:norl:
