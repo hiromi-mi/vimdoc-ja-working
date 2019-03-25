@@ -1,4 +1,4 @@
-*options.txt*	For Vim バージョン 8.1.  Last change: 2019 Mar 08
+*options.txt*	For Vim バージョン 8.1.  Last change: 2019 Mar 24
 
 
 		  VIMリファレンスマニュアル    by Bram Moolenaar
@@ -2582,7 +2582,14 @@ Note 1番目の形式では、行全体がオプション指定に使われる�
 	既定値はCプログラム用である。C++プログラムには、定数定義を加えて次のよ
 	うにすると便利だろう。 >
 		^\(#\s*define\|[a-z]*\s*const\s*[a-z]*\)
+<	"\ze" を例: Javascript で、関数が "func_name = function(args)" の形式
+で定義されるなら: >
+		^\s*\ze\i\+\s*=\s*function(
+<	関数が "func_name : function() {..." の形式で定義されるなら: >
+		^\s*\ze\i\+\s*[:]\s*(*function\s*(
 <	":set" で設定するときは、'\' の数を2倍にする必要がある！
+	シングルクォートで囲まれた `:let` を避けるには: >
+		let &l:define = '^\s*\ze\k\+\s*=\s*function('
 
 			*'delcombine'* *'deco'* *'nodelcombine'* *'nodeco'*
 'delcombine' 'deco'	切替 (既定ではオフ)
@@ -7780,7 +7787,9 @@ Note 1番目の形式では、行全体がオプション指定に使われる�
 			示するときに、バッファを読み込む前にカレントウィンドウ
 			を分割する。
 			含まれていないときは、分割はされない。カレントウィンド
-			ウが使われる。
+			ウが使われる (Quickfixウィンドウ内では、他にウィンドウ
+			があるなら前のウィンドウが使われ、ないなら分割される)。
+			が使われ分割しない。
 	   vsplit	"split" と同様だが、垂直に分割する。
 	   newtab	"split" と同様だが、新しいタブページを開く。"split" と
 			両方指定された場合はこちらが優先される。
