@@ -11,7 +11,8 @@ Rubyインターフェイス					*ruby* *Ruby*
 3. Vim::Buffer オブジェクト	|ruby-buffer|
 4. Vim::Window オブジェクト	|ruby-window|
 5. グローバル変数		|ruby-globals|
-6. 動的ローディング		|ruby-dynamic|
+6. rubyeval() Vim 関数		|ruby-rubyeval|
+7. 動的ローディング		|ruby-dynamic|
 
 {Vi にはこれらのコマンドはない}
 			*E266* *E267* *E268* *E269* *E270* *E271* *E272* *E273*
@@ -194,7 +195,16 @@ $curwin		現在のウィンドウオブジェクト
 $curbuf		現在のバッファオブジェクト
 
 ==============================================================================
-6. 動的ローディング					*ruby-dynamic*
+6. rubyeval() Vim 関数					*ruby-rubyeval*
+
+双方向インターフェイスを容易にするため、|rubyeval()| 関数を使って Ruby の式を
+評価して、その値を Vim script に渡すことができる。
+
+Ruby での "true", "false", "nil" は v:true, v:false, v:null にそれぞれ変換され
+る。
+
+==============================================================================
+7. 動的ローディング					*ruby-dynamic*
 
 MS-WindowsとUnixではRubyライブラリを動的に読み込むことが可能である。これを行う
 と|:version|の出力に|+ruby/dyn|が含まれるようになる。

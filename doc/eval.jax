@@ -2484,6 +2484,7 @@ repeat({expr}, {count})		文字列	{expr}を{count}回繰り返す
 resolve({filename})		文字列	ショートカットが指す先のファイル名
 reverse({list})			文字列	{list}をその場で反転させる
 round({expr})			浮動小数点数	{expr} を四捨五入する
+rubyeval({expr})		任意	|Ruby| の式を評価
 screenattr({row}, {col})	数値	スクリーン位置の属性
 screenchar({row}, {col})	数値	スクリーン位置の文字
 screencol()			数値	現在のカーソル列
@@ -7237,6 +7238,17 @@ round({expr})							*round()*
 			echo round(-4.5)
 <			-5.0
 		{|+float| 機能つきでコンパイルされたときのみ有効}
+
+rubyeval({expr})					*rubyeval()*
+		Rubyの式 {expr} を評価し、その結果を Vim のデータ構造に変換し
+		たものを返す。
+		数値、浮動小数点数、文字列はそのまま返される (文字列はコピーさ
+		れる)。
+		配列は Vim の |List| 型に変換される。
+		ハッシュは Vim の |Dictionary| 型に変換される。
+		それ以外のオブジェクトは "Object#to_s" メソッドの結果を文字列
+		として表わされる。
+		{|+ruby| 機能つきでコンパイルされたときのみ有効}
 
 screenattr({row}, {col})					*screenattr()*
 		|screenchar()| と同様だが、属性を返す。これは他の位置の属性と
