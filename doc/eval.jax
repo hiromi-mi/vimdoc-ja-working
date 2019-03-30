@@ -1,4 +1,4 @@
-*eval.txt*	For Vim バージョン 8.1.  Last change: 2019 Mar 23
+*eval.txt*	For Vim バージョン 8.1.  Last change: 2019 Mar 29
 
 
 		VIMリファレンスマニュアル    by Bram Moolenaar
@@ -2223,6 +2223,7 @@ col({expr})			数値	カーソルかマークのカラム番号
 complete({startcol}, {matches})	なし	挿入モード補完を設定する
 complete_add({expr})		数値	補完候補を追加する
 complete_check()		数値	補完中に押されたキーをチェックする
+complete_info([{what}])		辞書	現在の補完情報を取得
 confirm({msg} [, {choices} [, {default} [, {type}]]])
 				数値	ユーザーへの選択肢と番号
 copy({expr})			任意	{expr}の浅いコピーを作る
@@ -2487,8 +2488,10 @@ round({expr})			浮動小数点数	{expr} を四捨五入する
 rubyeval({expr})		任意	|Ruby| の式を評価
 screenattr({row}, {col})	数値	スクリーン位置の属性
 screenchar({row}, {col})	数値	スクリーン位置の文字
+screenchars({row}, {col})	リスト	スクリーン位置の文字のリスト
 screencol()			数値	現在のカーソル列
 screenrow()			数値	現在のカーソル行
+screenstring({row}, {col})	文字列	スクリーン位置の文字列
 search({pattern} [, {flags} [, {stopline} [, {timeout}]]])
 				数値	{pattern} を検索する
 searchdecl({name} [, {global} [, {thisblock}]])
@@ -3416,8 +3419,8 @@ cindent({lnum})						*cindent()*
 		|C-indenting|を参照。
 
 clearmatches()						*clearmatches()*
-		|matchadd()| と コマンド |:match| により定義されたマッチをすべ
-		て消去する。
+		|matchadd()| と コマンド |:match| によりカレントウィンドウに定
+		義されたマッチをすべて消去する。
 
 							*col()*
 col({expr})	戻り値は数値で、{expr}で与えられる位置の桁番号(バイトインデッ
@@ -3491,6 +3494,54 @@ complete_check()				*complete_check()*
 		完の検索に時間がかかる場合に使われる。候補の検索を中断しようと
 		しているときは|TRUE|を返す。そうでないときは0を返す。
 		'completefunc' で指定された関数の中でのみ使われる。
+
+							*complete_info()*
+complete_info([{what}])
+		挿入モードの補完に関する情報を辞書で返す。|ins-completion| を
+		参照。
+		要素は以下の通り:
+		   mode		現在の補完モード名の文字列。
+				値は |completion_info_mode| を参照。
+		   pum_visible	ポップアップメニューが表示されているなら |TRUE|
+				|pumvisible()| を参照。
+		   items	補完マッチのリスト。各要素は "word", "abbr",
+				"menu", "kind", "info" and "user_data" を含む辞
+				書。|complete-items| を参照。
+		   selected	選択された補完候補のインデックス。最初のインデッ
+				クスが 0。どの補完候補も選択されていなければ -1
+				(挿入されたテキストのみが表示されているとき)。
+		   inserted	入力された文字列。[現時点では未実装]
+
+							*complete_info_mode*
+		mode の値は:
+		   ""		     補完モードでない
+		   "keyword"	     キーワード補完 |i_CTRL-X_CTRL-N|
+		   "ctrl_x"	     CTRL-X が入力された状態 |i_CTRL-X|
+		   "whole_line"	     行全体 |i_CTRL-X_CTRL-L|
+		   "files"	     ファイル名 |i_CTRL-X_CTRL-F|
+		   "tags"	     タグ |i_CTRL-X_CTRL-]|
+		   "path_defines"    定義補完 |i_CTRL-X_CTRL-D|
+		   "path_patterns"   インクルード補完 |i_CTRL-X_CTRL-I|
+		   "dictionary"	     'dictionary' のキーワード |i_CTRL-X_CTRL-K|
+		   "thesaurus"	     同義語 |i_CTRL-X_CTRL-T|
+		   "cmdline"	     Vimコマンドライン |i_CTRL-X_CTRL-V|
+		   "function"	     ユーザー定義補完 |i_CTRL-X_CTRL-U|
+		   "omni"	     オムニ補完 |i_CTRL-X_CTRL-O|
+		   "spell"	     スペル補完 |i_CTRL-X_s|
+		   "eval"            |complete()| による補完
+		   "unknown"	     その他の内部状態
+
+		任意のリスト型引数 {what} が与えられると、 {what} にある項目の
+		みが返る。{what} 内のサポートされていない項目は無視される。
+
+		例: >
+			" 全ての項目を取得
+			call complete_info()
+			" 'mode' のみを取得
+			call complete_info(['mode'])
+			" 'mode' と 'pum_visible' のみを取得
+			call complete_info(['mode', 'pum_visible'])
+<
 
 							*confirm()*
 confirm({msg} [, {choices} [, {default} [, {type}]]])
@@ -4884,10 +4935,10 @@ getloclist({nr} [, {what}])				*getloclist()*
 
 
 getmatches()						*getmatches()*
-		|matchadd()| と |:match| により定義された全てのマッチの |List|
-		を返す。|setmatches()| は |getmatches()| で保存されたマッチの
-		リストを復元できるので、|getmatches()| と |setmatches()| は組
-		み合わせて使うと便利である。
+		|matchadd()| と |:match| によりカレントウィンドウに定義された
+		全てのマッチの |List| を返す。|setmatches()| は |getmatches()|
+		で保存されたマッチのリストを復元できるので、|getmatches()| と
+		|setmatches()| は組み合わせて使うと便利である。
 		例: >
 			:echo getmatches()
 <			[{'group': 'MyGroup1', 'pattern': 'TODO',
@@ -7263,6 +7314,12 @@ screenchar({row}, {col})					*screenchar()*
 		この関数は主にテスト用に使われる。
 		row か col が範囲外である場合は -1 を返す。
 
+screenchars({row}, {col})					*screenchars()*
+		結果は数値のリスト。最初の数値は |screenchar()| が返す数値と同
+		一。それ以降の数値は基底文字に続く合成文字の数値。
+		この関数は主にテスト用。
+		row や col が範囲外である場合は空文字列を返す。
+
 screencol()							*screencol()*
 		現在のカーソルのスクリーン列を数値で返す。一番左の列番号は 1。
 		この関数は主にテスト用。
@@ -7280,6 +7337,13 @@ screenrow()							*screenrow()*
 		代用として |winline()| を使う事ができる。
 
 		Note: |screencol()| と同様の制約あり。
+
+screenstring({row}, {col})					*screenstring()*
+		結果は文字列で、スクリーンの位置 [row, col] の基底文字と合成文
+		字全てを含む。
+		|screenchars()| と似ているが文字を文字列として返す。
+		この関数は主にテスト用。
+		row や col が範囲外である場合は空文字列を返す。
 
 search({pattern} [, {flags} [, {stopline} [, {timeout}]]])	*search()*
 		正規表現パターン{pattern}を検索する。検索はカーソル位置から開
