@@ -1,4 +1,4 @@
-*tagsrch.txt*   For Vim バージョン 8.1.  Last change: 2019 Mar 23
+*tagsrch.txt*   For Vim バージョン 8.1.  Last change: 2019 Mar 30
 
 
 		  VIMリファレンスマニュアル    by Bram Moolenaar
@@ -518,11 +518,12 @@ ptags			Perl 用、Perl で書かれている。これはここで見つかる�
 gnatxref		Ada用。http://www.gnuada.org/ を参照。
 			gnatxrefはgnatパッケージの一部である。
 
-tagsファイルは次の３つの形式のどれかで構成されなければならない:
+tagsファイルは次の2つの形式のどれかで構成されなければならない:
 
 1.  {tagname}		{TAB} {tagfile} {TAB} {tagaddress}
-2.  {tagfile}:{tagname} {TAB} {tagfile} {TAB} {tagaddress}
-3.  {tagname}		{TAB} {tagfile} {TAB} {tagaddress} {term} {field} ..
+2.  {tagname}		{TAB} {tagfile} {TAB} {tagaddress} {term} {field} ..
+
+以前は古いフォーマットがサポートされており、|tag-old-static| を参照。
 
 最初の形式は通常のタグで、Viで完全に互換性がある。伝統的なctagsによってのみ作
 られる形式である。これはしばしばグローバルな関数や他のファイルを参照する場合に
@@ -532,14 +533,7 @@ tagsファイルは次の３つの形式のどれかで構成されなければ�
 <CR>と<NL>は行内に決して現れない。
 
 							*tag-old-static*
-２番目の形式はstaticタグにのみ使用できる。現在では廃れており、３番目の形式に置
-き換えられている。これはElvis 1.xとVim、それといくつかのバージョンのctagsによっ
-てのみサポートされている。staticタグはローカル関数によく用いられ、{tagfile}内
-のみ参照する。staticタグでは２つの{tagfile}は正確に一致していなければならない
-ことに注意すること。staticタグがどのように使われるかについては|tags-option|を
-参照すること。
-
-3番目の形式は新しい。各行の末尾にある任意的なフィールドに追加の情報を含む。こ
+2番目の形式は新しい。各行の末尾にある任意的なフィールドに追加の情報を含む。こ
 れは以前のViとも互換性がある。新しいバージョンのctagsにのみサポートされている
 (Exuberant ctagsとか)。
 
@@ -637,6 +631,24 @@ Vimが認識するもう1つのタグはタグファイルのエンコーディ�
   この意味は: '#' もしくは識別子で始まり、空白文字と '(' が続くタグを含む行で
   ある。これは型が先頭にあるマクロ名や関数名を見つけるだろう。{Vi には拡張検索
   はない}
+
+
+							*tag-old-static*
+2019年3月 (パッチ 8.1.1092) までは旧式のフォーマットがサポートされていた:
+    {tagfile}:{tagname} {TAB} {tagfile} {TAB} {tagaddress}
+
+このフォーマットはstaticタグ専用である。すたれており、2つめのフォーマットで代
+替された。Elvis 1.x, 古い Vim のバージョンおよびいくらかのバージョンでの ctags
+でのみサポートされている。 staticタグは
+この形式はstaticタグにのみ使用できる。現在では廃れており、2番目の形式に置
+き換えられている。これはElvis 1.xとVim、それといくつかのバージョンのctagsによっ
+てのみサポートされている。staticタグはローカル関数によく用いられ、{tagfile}内
+のみ参照する。staticタグでは２つの{tagfile}は正確に一致していなければならない
+ことに注意すること。staticタグがどのように使われるかについては|tags-option|を
+参照すること。
+
+新しい Vimのバージョンに更新するときに、2つ目の形式をサポートした ctags に更新
+するこもできるから、サポートが削除された。
 
 ==============================================================================
 6. インクルードファイルの検索		*include-search* *definition-search*
